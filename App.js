@@ -1,34 +1,48 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import {View, StyleSheet, Text, Pressable} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Pressable,
+  useWindowDimensions,
+} from 'react-native';
 import Card from './source/components/AmityCard';
 import users from './TinderAssets/assets/data/users';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
+  useDerivedValue,
   useAnimatedGestureHandler,
+  interpolate,
 } from 'react-native-reanimated';
 import { PanGestureHandler} from 'react-native-gesture-handler';
 
 const App = () => {
-  const translationX= useSharedValue(0);
+  const {width: screenWidth} = useWindowDimensions();
+  const translationX = useSharedValue(0);
+  const rotation = useDerivedValue(
+    () => interpolate(translationX.value, [0, screenWidth], [0, 60]) + 'deg',
+  );
 
   const cardStyle = useAnimatedStyle(() => ({
     transform: [
       {
         translateX: translationX.value,
       },
+      {
+        rotate: rotation.value,
+      },
     ],
   }));
 
   const gestureHandler = useAnimatedGestureHandler({
     onStart: (_, context) => {
-      console.log('Touch is working');
+      context.startX = translationX.value;
     },
 
-    onActive: (event,context) => {
-      translationX.value = event.translationX;
+    onActive: (event, context) => {
+      translationX.value = context.startX + event.translationX;
     },
     onEnd: () => {
       console.log('Touch ended');
