@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   StyleSheet,
@@ -15,10 +15,13 @@ import Animated, {
   useDerivedValue,
   useAnimatedGestureHandler,
   interpolate,
+  withSpring,
+  runOnJS,
 } from 'react-native-reanimated';
 import {PanGestureHandler} from 'react-native-gesture-handler';
 
 const ROTATE = 60;
+const SWIPE_SPEED = 800;
 
 const App = () => {
   const [currIndex, setIndex] = useState(0);
@@ -61,7 +64,7 @@ const App = () => {
       translationX.value,
       [-translateX, 0, translateX],
       [1, 0.6, 1],
-    )
+    ),
   }));
 
   const gestureHandler = useAnimatedGestureHandler({
@@ -72,24 +75,40 @@ const App = () => {
     onActive: (event, context) => {
       translationX.value = context.startX + event.translationX;
     },
-    onEnd: () => {
-      console.log('Touch ended');
+    onEnd: event => {
+      if (Math.abs(event.velocityX) < SWIPE_SPEED) {
+        translationX.value = withSpring(0);
+        return;
+      }
+      translationX.value = withSpring(
+        translateX * Math.sign(event.velocityX),
+        {},
+        () => runOnJS(setIndex)(currIndex + 1),
+      );
     },
   });
+  useEffect(() => {
+    translationX.value = 0;
+    setNextIndex(currIndex + 1);
+  }, [currIndex, translationX]);
 
   return (
     <View style={styles.cardContainer}>
-      <View style={styles.nextCard}>
-        <Animated.View style={(styles.cardAnimation, queCardStyle)}>
-          <Card user={nextProfile} />
-        </Animated.View>
-      </View>
+      {nextProfile && (
+        <View style={styles.nextCard}>
+          <Animated.View style={(styles.cardAnimation, queCardStyle)}>
+            <Card user={nextProfile} />
+          </Animated.View>
+        </View>
+      )}
 
-      <PanGestureHandler onGestureEvent={gestureHandler}>
-        <Animated.View style={(styles.cardAnimation, cardStyle)}>
-          <Card user={currProfile} />
-        </Animated.View>
-      </PanGestureHandler>
+      {currProfile && (
+        <PanGestureHandler onGestureEvent={gestureHandler}>
+          <Animated.View style={(styles.cardAnimation, cardStyle)}>
+            <Card user={currProfile} />
+          </Animated.View>
+        </PanGestureHandler>
+      )}
     </View>
   );
 };
