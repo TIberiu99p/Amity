@@ -3,7 +3,7 @@ import React, {useState, useEffect} from 'react';
 import {
   View,
   StyleSheet,
-  Text,
+  Image,
   Pressable,
   useWindowDimensions,
 } from 'react-native';
@@ -19,6 +19,8 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import {PanGestureHandler} from 'react-native-gesture-handler';
+import Like from './TinderAssets/assets/images/LIKE.png';
+import Nope from './TinderAssets/assets/images/nope.png';
 
 const ROTATE = 60;
 const SWIPE_SPEED = 800;
@@ -63,8 +65,16 @@ const App = () => {
     opacity: interpolate(
       translationX.value,
       [-translateX, 0, translateX],
-      [1, 0.6, 1],
+      [1, 0.5, 1],
     ),
+  }));
+
+  const yesStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(translationX.value, [0, translateX / 5], [0, 1]),
+  }));
+
+  const noStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(translationX.value, [0, -translateX / 5], [0, 1]),
   }));
 
   const gestureHandler = useAnimatedGestureHandler({
@@ -105,6 +115,16 @@ const App = () => {
       {currProfile && (
         <PanGestureHandler onGestureEvent={gestureHandler}>
           <Animated.View style={(styles.cardAnimation, cardStyle)}>
+            <Animated.Image
+              source={Like}
+              style={[styles.like, {right: 10}, yesStyle]}
+              resizeMode="contain"
+            />
+            <Animated.Image
+              source={Nope}
+              style={[styles.like, {left: 10}, noStyle]}
+              resizeMode="contain"
+            />
             <Card user={currProfile} />
           </Animated.View>
         </PanGestureHandler>
@@ -120,8 +140,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardAnimation: {
-    width: '100%',
-    flex: 1,
+    width: '90%',
+    height: '70%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -130,6 +150,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  like: {
+    width: 140,
+    height: 200,
+    position: 'absolute',
+    top: 10,
+    zIndex: 1,
+  },
+  nope: {},
 });
 
 export default App;
