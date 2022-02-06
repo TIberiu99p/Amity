@@ -1,28 +1,13 @@
 import 'react-native-gesture-handler';
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
-import Card from './source/components/AmityCard';
-import users from './TinderAssets/assets/data/users';
-
-import StackOfCards from './source/components/AnimatedStack/index';
+import HomeSection from './source/screens/HomeSection';
+import MatchesSection from './source/screens/MatchesSection';
 
 const App = () => {
-  const onSwipeLeft = user => {
-    console.warn('swipe left: ', user.name);
-  };
-
-  const onSwipeRight = user => {
-    console.warn('swipe right: ', user.name);
-  };
-
   return (
     <View style={styles.cardContainer}>
-      <StackOfCards
-        data={users}
-        renderItem={({item}) => <Card user={item} />}
-        onSwipeRight={onSwipeRight}
-        onSwipeLeft={onSwipeLeft}
-      />
+      <MatchesSection/>
     </View>
   );
 };
