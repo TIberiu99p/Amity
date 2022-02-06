@@ -4,12 +4,25 @@ import {View, StyleSheet} from 'react-native';
 import Card from './source/components/AmityCard';
 import users from './TinderAssets/assets/data/users';
 
-import StackCards from './source/components/AnimatedStack';
+import StackOfCards from './source/components/AnimatedStack/index';
 
 const App = () => {
+  const onSwipeLeft = user => {
+    console.warn('swipe left: ', user.name);
+  };
+
+  const onSwipeRight = user => {
+    console.warn('swipe right: ', user.name);
+  };
+
   return (
     <View style={styles.cardContainer}>
-      <StackCards data={users} renderItem={({item}) => <Card user={item} />} />;
+      <StackOfCards
+        data={users}
+        renderItem={({item}) => <Card user={item} />}
+        onSwipeRight={onSwipeRight}
+        onSwipeLeft={onSwipeLeft}
+      />
     </View>
   );
 };

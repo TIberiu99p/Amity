@@ -17,8 +17,8 @@ import Nope from '../../../TinderAssets/assets/images/nope.png';
 const ROTATE = 60;
 const SWIPE_SPEED = 800;
 
-const StackCards = props => {
-  const {data, renderItem} = props;
+const StackOfCards = props => {
+  const {data, renderItem, onSwipeRight, onSwipeLeft} = props;
 
   const [currIndex, setIndex] = useState(0);
   const [nextIndex, setNextIndex] = useState(currIndex + 1);
@@ -89,8 +89,12 @@ const StackCards = props => {
         {},
         () => runOnJS(setIndex)(currIndex + 1),
       );
+
+      const onSwipe = event.velocityX > 0 ? onSwipeRight : onSwipeLeft;
+      onSwipe && runOnJS(onSwipe)(currProfile);
     },
   });
+
   useEffect(() => {
     translationX.value = 0;
     setNextIndex(currIndex + 1);
@@ -98,31 +102,33 @@ const StackCards = props => {
 
   return (
     <View style={styles.rootContainer}>
-      {nextProfile && (
+      {nextProfile ? (
         <View style={styles.nextCard}>
           <Animated.View style={(styles.cardAnimation, queCardStyle)}>
             {renderItem({item: nextProfile})}
           </Animated.View>
-        </View> 
-      )}
+        </View>
+      ) : null}
 
-      {currProfile && (
+      {currProfile ? (
         <PanGestureHandler onGestureEvent={gestureHandler}>
           <Animated.View style={(styles.cardAnimation, cardStyle)}>
             <Animated.Image
               source={Like}
+              // eslint-disable-next-line react-native/no-inline-styles
               style={[styles.like, {right: 10}, yesStyle]}
               resizeMode="contain"
             />
             <Animated.Image
               source={Nope}
+              // eslint-disable-next-line react-native/no-inline-styles
               style={[styles.like, {left: 10}, noStyle]}
               resizeMode="contain"
             />
             {renderItem({item: currProfile})}
           </Animated.View>
         </PanGestureHandler>
-      )}
+      ) : null}
     </View>
   );
 };
@@ -132,6 +138,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
+    width: '100%',
   },
   cardAnimation: {
     width: '90%',
@@ -154,4 +161,4 @@ const styles = StyleSheet.create({
   nope: {},
 });
 
-export default StackCards;
+export default StackOfCards;
