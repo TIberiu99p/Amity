@@ -1,18 +1,72 @@
 import 'react-native-gesture-handler';
-import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, {useState} from 'react';
+import {View, StyleSheet, Pressable, SafeAreaView} from 'react-native';
+
+import FontAwesome5Brands from 'react-native-vector-icons/FontAwesome5';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+
 import HomeSection from './source/screens/HomeSection';
 import MatchesSection from './source/screens/MatchesSection';
 
 const App = () => {
+  const [selectedSection, setSection] = useState('HOME');
+
+  const unselectedColour = '#9c99a1';
+  const selectedColour = '#3d0696';
   return (
-    <View style={styles.cardContainer}>
-      <MatchesSection/>
-    </View>
+    <SafeAreaView style={styles.safeRoot}>
+      <View style={styles.cardContainer}>
+        <View style={styles.topBarIcons}>
+          <Pressable onPress={() => setSection('HOME')}>
+            <FontAwesome5Brands
+              name="fantasy-flight-games"
+              size={35}
+              color={
+                selectedSection == 'HOME' ? selectedColour : unselectedColour
+              }
+            />
+          </Pressable>
+
+          <MaterialCommunityIcons
+            name="puzzle-star"
+            size={35}
+            color={unselectedColour}
+          />
+
+          <Pressable onPress={() => setSection('CHAT')}>
+            <MaterialCommunityIcons
+              name="sword-cross"
+              size={35}
+              color={
+                selectedSection == 'CHAT' ? selectedColour : unselectedColour
+              }
+            />
+          </Pressable>
+
+          <FontAwesome5
+            name="user-astronaut"
+            size={35}
+            color={unselectedColour}
+          />
+        </View>
+        {selectedSection == 'HOME' && <HomeSection />}
+        {selectedSection == 'CHAT' && <MatchesSection />}
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeRoot: {
+    flex: 1,
+  },
+  topBarIcons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    padding: 10,
+  },
   cardContainer: {
     justifyContent: 'center',
     alignItems: 'center',

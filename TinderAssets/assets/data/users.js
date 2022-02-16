@@ -1,16 +1,16 @@
 export default [
   {
     id: '1',
-    name: 'Vadim Savin',
+    name: 'Ichigo',
     image:
-      'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/vadim1.JPG',
-    bio: 'I will be the semicolons to your code',
+      'https://static0.cbrimages.com/wordpress/wp-content/uploads/2021/04/Ichigo.jpg?q=50&fit=crop&w=960&h=500&dpr=1.5',
+    bio: 'Bankai to your heart',
   },
   {
     id: '2',
     name: 'Elon Musk',
     image:
-      'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/elon.png',
+      'https://static0.cbrimages.com/wordpress/wp-content/uploads/2021/04/Ichigo.jpg?q=50&fit=crop&w=960&h=500&dpr=1.5',
     bio: 'A dude with a rocket is looking for a gal with fuel',
   },
   {
@@ -29,9 +29,9 @@ export default [
   },
   {
     id: '5',
-    name: 'Vadim Savin',
+    name: 'Ichigo',
     image:
-      'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/vadim1.JPG',
-    bio: 'Hola',
+      'https://static0.cbrimages.com/wordpress/wp-content/uploads/2021/04/Ichigo.jpg?q=50&fit=crop&w=960&h=500&dpr=1.5',
+    bio: 'ma sugi alex',
   },
 ];

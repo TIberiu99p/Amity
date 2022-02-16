@@ -12,7 +12,7 @@ const MatchesSection = () => {
         <View style={styles.users}>
           {users.map(user => (
             <View style={styles.user} key={user.id}>
-              <Image source={{uri: user.image}} style={styles.image} />
+              <Image source={{uri:user.image}} style={styles.image} />
             </View>
           ))}
         </View>

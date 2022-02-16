@@ -1,0 +1,16 @@
+Top icons:
+
+<FontAwesome5Brands name = "fantasy-flight-games" size = {24} color = {color} /> //swipe screen icon
+<MaterialCommunityIcons name = "puzzle-star" size = {24} color = {color} // likes screen icon
+<MaterialCommunityIcons name = "sword-cross" size = {24} color = {color} /> //matches icons
+<FontAwesome5 name = "user-astronaut" size ={24} color = {color} /> //profile icon
+
+
+
+Bottom icons:
+
+<Ionicons name = "ios-arrow-undo-circle" size = {24} color = {color} /> //undo button
+<Foundation name = "x-circle" size = {24} color = {color} /> //x button
+<FontAwesome name = "superpowers" size = {24} color = {color} /> //super button
+<MaterialCommunityIcons name = "pokeball" size = {24} color = {color} /> // like button 
+<MaterialCommunityIcons name = "pirate" size = {24} color = {color} /> // boost search button 
