@@ -5,9 +5,15 @@ import {View, StyleSheet, Pressable, SafeAreaView} from 'react-native';
 import FontAwesome5Brands from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Amplify from 'aws-amplify';
+import {withAuthenticator} from 'aws-amplify-react-native';
+import config from './src/aws-exports';
 
 import HomeSection from './source/screens/HomeSection';
 import MatchesSection from './source/screens/MatchesSection';
+import UserScreenProfile from './source/screens/UserScreenProfile';
+
+Amplify.configure(config);
 
 const App = () => {
   const [selectedSection, setSection] = useState('HOME');
@@ -23,7 +29,7 @@ const App = () => {
               name="fantasy-flight-games"
               size={35}
               color={
-                selectedSection == 'HOME' ? selectedColour : unselectedColour
+                selectedSection === 'HOME' ? selectedColour : unselectedColour
               }
             />
           </Pressable>
@@ -39,19 +45,26 @@ const App = () => {
               name="sword-cross"
               size={35}
               color={
-                selectedSection == 'CHAT' ? selectedColour : unselectedColour
+                selectedSection === 'CHAT' ? selectedColour : unselectedColour
               }
             />
           </Pressable>
 
-          <FontAwesome5
-            name="user-astronaut"
-            size={35}
-            color={unselectedColour}
-          />
+          <Pressable onPress={() => setSection('USER_PROFILE')}>
+            <FontAwesome5
+              name="user-astronaut"
+              size={35}
+              color={
+                selectedSection === 'USER_PROFILE'
+                  ? selectedColour
+                  : unselectedColour
+              }
+            />
+          </Pressable>
         </View>
-        {selectedSection == 'HOME' && <HomeSection />}
-        {selectedSection == 'CHAT' && <MatchesSection />}
+        {selectedSection === 'HOME' && <HomeSection />}
+        {selectedSection === 'CHAT' && <MatchesSection />}
+        {selectedSection === 'USER_PROFILE' && <UserScreenProfile />}
       </View>
     </SafeAreaView>
   );
@@ -74,4 +87,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default withAuthenticator(App);

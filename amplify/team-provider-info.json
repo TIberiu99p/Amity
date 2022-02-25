@@ -1,0 +1,20 @@
+{
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-amity-staging-143048-authRole",
+      "UnauthRoleArn": "arn:aws:iam::093986034118:role/amplify-amity-staging-143048-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::093986034118:role/amplify-amity-staging-143048-authRole",
+      "Region": "eu-west-2",
+      "DeploymentBucketName": "amplify-amity-staging-143048-deployment",
+      "UnauthRoleName": "amplify-amity-staging-143048-unauthRole",
+      "StackName": "amplify-amity-staging-143048",
+      "StackId": "arn:aws:cloudformation:eu-west-2:093986034118:stack/amplify-amity-staging-143048/08f14130-8f35-11ec-938d-066519eb88e0",
+      "AmplifyAppId": "diyx1s1cdzk1d"
+    },
+    "categories": {
+      "auth": {
+        "Amity": {}
+      }
+    }
+  }
+}

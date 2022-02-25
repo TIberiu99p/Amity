@@ -1,0 +1,31 @@
+type Match @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  User1: User @hasOne
+  User2: User @hasOne
+}
+
+enum PLATFORM {
+  PLAYSTATION
+  XBOX
+  PC
+}
+
+enum GAMETYPE {
+  FPS
+  MMORPG
+  SANDBOX
+  PVP
+  PVE
+  MOBA
+}
+
+type User @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  image: String
+  bio: String!
+  gameType: GAMETYPE!
+  platforms: PLATFORM!
+  lookingGameType: GAMETYPE!
+  lookingPlatformType: PLATFORM!
+}
