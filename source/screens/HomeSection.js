@@ -1,5 +1,7 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
+import {DataStore, Auth} from 'aws-amplify';
+import {User, Match} from '../../src/models';
 import Card from '../components/AmityCard/index';
 import users from '../../TinderAssets/assets/data/users';
 
@@ -11,19 +13,84 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import StackOfCards from '../components/AnimatedStack/index';
 
 const HomeSection = () => {
-  const onSwipeLeft = user => {
-    console.warn('swipe left: ', user.name);
+  const [users, setUsers] = useState([]);
+  const [presentUser, setPresentUser] = useState(null);
+  const [userAuthenticated, setUserAuthenticated] = useState(null);
+
+  useEffect(() => {
+    const getCurrUser = async () => {
+      const user = await Auth.currentAuthenticatedUser();
+      const dbUsers = await DataStore.query(
+        User,
+        dbU => dbU.sub === user.attributes.sub,
+      );
+
+      if (dbUsers.length < 0) {
+        return;
+      }
+      setUserAuthenticated(dbUsers[0]);
+    };
+    getCurrUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setUsers(await DataStore.query(User));
+    };
+    fetchUsers();
+  }, []);
+
+  const onSwipeLeft = () => {
+    if (!presentUser || !userAuthenticated) {
+      return;
+    }
+    console.warn('swipe left: ', presentUser.name);
   };
 
-  const onSwipeRight = user => {
-    console.warn('swipe right: ', user.name);
+  const onSwipeRight = async () => {
+    if (!presentUser || !userAuthenticated) {
+      return;
+    }
+
+    const myMatches = await DataStore.query(Match, match =>
+      match.User1ID('eq', userAuthenticated.id).User2ID('eq', presentUser.id),
+    );
+
+    if (myMatches.length > 0) {
+      console.warn('Can`t swipe twice on the same gamer');
+      return;
+    }
+
+    const daMatches = await DataStore.query(Match, match =>
+      match.User1ID('eq', userAuthenticated.id).User2ID('eq', presentUser.id),
+    );
+    if (daMatches.length > 0) {
+      console.log('A new gamer approaches');
+      const daMatch = daMatches[0];
+      DataStore.save(
+        Match.copyOf(daMatch, updated => (updated.isMatched = true)),
+      );
+      return;
+    }
+
+    console.warn('This gamer requires your assistance!');
+    const newMatch = new Match({
+      User1ID: userAuthenticated.id,
+      User2ID: presentUser.id,
+      isMatched: false,
+    });
+    console.log(newMatch);
+    DataStore.save(newMatch);
   };
+
+  console.log(users);
 
   return (
     <View style={styles.cardContainer}>
       <StackOfCards
         data={users}
         renderItem={({item}) => <Card user={item} />}
+        setPresentUser={setPresentUser}
         onSwipeRight={onSwipeRight}
         onSwipeLeft={onSwipeLeft}
       />

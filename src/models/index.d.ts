@@ -28,7 +28,10 @@ type UserMetaData = {
 export declare class Match {
   readonly id: string;
   readonly User1?: User;
+  readonly User1ID: string;
+  readonly User2ID?: string;
   readonly User2?: User;
+  readonly isMatched: boolean;
   readonly createdAt?: string;
   readonly updatedAt?: string;
   readonly matchUser1Id?: string;
@@ -46,6 +49,7 @@ export declare class User {
   readonly platforms: Platform | keyof typeof Platform;
   readonly lookingGameType: Gametype | keyof typeof Gametype;
   readonly lookingPlatformType: Platform | keyof typeof Platform;
+  readonly sub: string;
   readonly createdAt?: string;
   readonly updatedAt?: string;
   constructor(init: ModelInit<User, UserMetaData>);

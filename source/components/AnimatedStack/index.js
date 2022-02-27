@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, useWindowDimensions} from 'react-native';
+import {View, StyleSheet, useWindowDimensions, Text} from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -17,7 +17,7 @@ const ROTATE = 60;
 const SWIPE_SPEED = 800;
 
 const StackOfCards = props => {
-  const {data, renderItem, onSwipeRight, onSwipeLeft} = props;
+  const {data, renderItem, onSwipeRight, onSwipeLeft, setPresentUser} = props;
 
   const [currIndex, setIndex] = useState(0);
   const [nextIndex, setNextIndex] = useState(currIndex + 1);
@@ -90,7 +90,7 @@ const StackOfCards = props => {
       );
 
       const onSwipe = event.velocityX > 0 ? onSwipeRight : onSwipeLeft;
-      onSwipe && runOnJS(onSwipe)(currProfile);
+      onSwipe && runOnJS(onSwipe)();
     },
   });
 
@@ -98,6 +98,10 @@ const StackOfCards = props => {
     translationX.value = 0;
     setNextIndex(currIndex + 1);
   }, [currIndex, translationX]);
+
+  useEffect(() => {
+    setPresentUser(currProfile);
+  }, [currProfile, setPresentUser]);
 
   return (
     <View style={styles.rootContainer}>
@@ -127,7 +131,11 @@ const StackOfCards = props => {
             {renderItem({item: currProfile})}
           </Animated.View>
         </PanGestureHandler>
-      ) : null}
+      ) : (
+        <View>
+          <Text>Ran out of gamers in your area</Text>
+        </View>
+      )}
     </View>
   );
 };

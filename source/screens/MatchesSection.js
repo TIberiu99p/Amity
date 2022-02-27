@@ -1,8 +1,44 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, StyleSheet, Text, SafeAreaView, Image} from 'react-native';
 import users from '../../TinderAssets/assets/data/users';
+import {DataStore, Auth} from 'aws-amplify';
+import {Match, User} from '../../src/models';
 
 const MatchesSection = () => {
+  const [matches, setMatches] = useState([]);
+  const [userAuthenticated, setUserAuthenticated] = useState(null);
+
+  const getCurrUser = async () => {
+    const user = await Auth.currentAuthenticatedUser();
+    const dbUsers = await DataStore.query(
+      User,
+      dbU => dbU.sub === user.attributes.sub,
+    );
+
+    if (dbUsers.length < 0) {
+      return;
+    }
+    setUserAuthenticated(dbUsers[0]);
+  };
+
+  useEffect(() => getCurrUser(), []);
+
+  useEffect(() => {
+    if (!userAuthenticated) {
+      return;
+    }
+    const getMatches = async () => {
+      const matchResult = await DataStore.query(Match, mch =>
+        mch
+          .or(m1 => m1.User1ID('eq', userAuthenticated.id))
+          .User2ID('eq', userAuthenticated.id),
+      );
+      setMatches(matchResult);
+      console.log(matchResult);
+    };
+    getMatches();
+  }, [userAuthenticated]);
+
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
@@ -10,9 +46,9 @@ const MatchesSection = () => {
           Matches
         </Text>
         <View style={styles.users}>
-          {users.map(user => (
-            <View style={styles.user} key={user.id}>
-              <Image source={{uri:user.image}} style={styles.image} />
+          {matches.map(match => (
+            <View style={styles.user} key={match.User1.id}>
+              <Image source={{uri: match.User1.image}} style={styles.image} />
             </View>
           ))}
         </View>

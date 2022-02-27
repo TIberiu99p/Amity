@@ -3,7 +3,7 @@
   "serviceConfiguration": {
     "apiName": "Amity",
     "serviceName": "AppSync",
-    "gqlSchemaPath": "/tmp/amplify-81406486-aacc-41ee-acef-47d04ccfc719/amplify/backend/api/Amity/schema.graphql",
+    "gqlSchemaPath": "/tmp/amplify-0e43a457-17c1-4098-8372-df416f3ae07c/amplify/backend/api/Amity/schema.graphql",
     "defaultAuthType": {
       "mode": "API_KEY",
       "keyDescription": "api key description",
