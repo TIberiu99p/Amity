@@ -24,16 +24,16 @@ const UserScreenProfile = () => {
 
   useEffect(() => {
     const getCurrUser = async () => {
-      const user = await Auth.currentAuthenticatedUser();
-      const dbUserS = await DataStore.query(
-        User,
-        dbU => dbU.sub === user.attributes.sub,
+      const userAu = await Auth.currentAuthenticatedUser();
+      const dbUsers = await DataStore.query(User, dbU =>
+        dbU.sub('eq', userAu.attributes.sub),
       );
 
-      if (dbUser.length < 0) {
+      if (!dbUsers || dbUsers.length === 0) {
+        console.warn('New gamer joined');
         return;
       }
-      const dbUser = dbUser[0];
+      const dbUser = dbUsers[0];
       setUser(dbUser);
       setName(dbUser.name);
       setBio(dbUser.bio);
@@ -84,6 +84,11 @@ const UserScreenProfile = () => {
     }
 
     Alert.alert('Gamer settings have been set');
+  };
+
+  const exitOut = async () => {
+    await DataStore.clear();
+    Auth.signOut();
   };
 
   return (
@@ -155,7 +160,7 @@ const UserScreenProfile = () => {
           <Text>Save changes</Text>
         </Pressable>
 
-        <Pressable onPress={() => Auth.signOut()} style={styles.buttonUser}>
+        <Pressable onPress={exitOut} style={styles.buttonUser}>
           <Text>Sign out</Text>
         </Pressable>
       </View>
