@@ -7,10 +7,15 @@ import {
   SafeAreaView,
   Pressable,
   TextInput,
+  Image,
+  ScrollView,
+  Platform,
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import {Auth, DataStore} from 'aws-amplify';
-import {User, Users} from '../../src/models';
+import {User} from '../../src/models';
+import {launchImageLibrary} from 'react-native-image-picker';
+import {request, PERMISSIONS} from 'react-native-permissions';
 
 const UserScreenProfile = () => {
   const [user, setUser] = useState(null);
@@ -21,6 +26,18 @@ const UserScreenProfile = () => {
   const [platformWanted, setPlatformWanted] = useState();
   const [gameType, setGameType] = useState();
   const [gameTypeWanted, setGameTypeWanted] = useState();
+
+  const [imageUriDevice, setNewImageUriDevice] = useState(null);
+
+  useEffect(() => {
+    const permit =
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.MEDIA_LIBRARY
+        : PERMISSIONS.ANDROID.CAMERA;
+    request(permit).then(statuses => {
+      console.log(statuses);
+    });
+  }, []);
 
   useEffect(() => {
     const getCurrUser = async () => {
@@ -86,6 +103,19 @@ const UserScreenProfile = () => {
     Alert.alert('Gamer settings have been set');
   };
 
+  const selectImage = () => {
+    launchImageLibrary(
+      {mediaType: 'mixed'},
+      ({didCancel, errorCode, errorMessage, assets}) => {
+        if (didCancel || !errorCode) {
+          console.warn('cancel or error');
+          return;
+        }
+        setNewImageUriDevice(assets[0].uri);
+      },
+    );
+  };
+
   const exitOut = async () => {
     await DataStore.clear();
     Auth.signOut();
@@ -93,7 +123,14 @@ const UserScreenProfile = () => {
 
   return (
     <SafeAreaView style={styles.root}>
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
+        <Image
+          source={{uri: imageUriDevice ? imageUriDevice : user?.image}}
+          style={{width: 100, height: 100, borderRadius: 50}}
+        />
+        <Pressable onPress={selectImage}>
+          <Text>Select image</Text>
+        </Pressable>
         <TextInput
           style={styles.inputTxt}
           placeholder="Name---"
@@ -163,7 +200,7 @@ const UserScreenProfile = () => {
         <Pressable onPress={exitOut} style={styles.buttonUser}>
           <Text>Sign out</Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

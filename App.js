@@ -11,7 +11,7 @@ import {
 import FontAwesome5Brands from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import Amplify, {DataStore, Hub} from 'aws-amplify';
+import Amplify, {Hub} from 'aws-amplify';
 import {withAuthenticator} from 'aws-amplify-react-native';
 import config from './src/aws-exports';
 
