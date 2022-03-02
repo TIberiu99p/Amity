@@ -13,6 +13,7 @@ import StackOfCards from '../components/AnimatedStack/index';
 
 const HomeSection = ({loadingUser}) => {
   const [users, setUsers] = useState([]);
+  const [matchesID, setMatchesID] = useState([null]);
   const [presentUser, setPresentUser] = useState(null);
   const [userAuthenticated, setUserAuthenticated] = useState(null);
 
@@ -35,14 +36,38 @@ const HomeSection = ({loadingUser}) => {
   }, [loadingUser]);
 
   useEffect(() => {
-    if (loadingUser) {
+    if (!userAuthenticated) {
+      return;
+    }
+    const getMatches = async () => {
+      const matchResult = await DataStore.query(Match, mch =>
+        mch
+          .isMatched('eq', true)
+          .or(m1 => m1.User1ID('eq', userAuthenticated.id))
+          .User2ID('eq', userAuthenticated.id),
+      );
+      setMatchesID(
+        matchResult.map(match =>
+          match.User1ID === userAuthenticated.id ? match.User2 : match.User1,
+        ),
+      );
+    };
+    getMatches();
+  }, [userAuthenticated]);
+
+  useEffect(() => {
+    if (loadingUser || !userAuthenticated || matchesID === null) {
       return;
     }
     const fetchUsers = async () => {
-      setUsers(await DataStore.query(User));
+      let usersFetched = await DataStore.query(User, user =>
+        user.platforms('eq', userAuthenticated.lookingFor),
+      );
+      usersFetched = usersFetched.filter(x => !matchesID.includes(x.id));
+      setUsers(usersFetched);
     };
     fetchUsers();
-  }, [loadingUser]);
+  }, [loadingUser, userAuthenticated, matchesID]);
 
   const onSwipeLeft = () => {
     if (!presentUser || !userAuthenticated) {
