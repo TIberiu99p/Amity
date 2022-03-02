@@ -12,9 +12,10 @@ import {
   Platform,
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
-import {Auth, DataStore} from 'aws-amplify';
+import {Auth, DataStore, Storage} from 'aws-amplify';
 import {User} from '../../src/models';
-import {launchImageLibrary} from 'react-native-image-picker';
+import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
+import {S3Image} from 'aws-amplify-react-native/dist/Storage';
 import {request, PERMISSIONS} from 'react-native-permissions';
 
 const UserScreenProfile = () => {
@@ -66,10 +67,30 @@ const UserScreenProfile = () => {
     return name && bio && platformGame && platformWanted;
   };
 
+  const getImage = async () => {
+    try {
+      const response = await fetch(imageUriDevice);
+      const blob = await response.blob();
+      const urlParts = imageUriDevice.split('.');
+      const extension = urlParts[urlParts.length - 1];
+      const key = `${user.id}.${extension}`;
+      await Storage.put(key, blob);
+      return key;
+    } catch (e) {
+      console.log(e);
+    }
+    return '';
+  };
+
   const save = async () => {
     if (!invalid()) {
       console.warn('Invalid');
       return;
+    }
+
+    let newImageUri;
+    if (imageUriDevice) {
+      newImageUri = await getImage();
     }
 
     if (user) {
@@ -80,9 +101,13 @@ const UserScreenProfile = () => {
         updated.platformWanted = platformWanted;
         updated.gameType = gameType;
         updated.gameTypeWanted = gameTypeWanted;
+        if (newImageUri) {
+          updated.image = newImageUri;
+        }
       });
 
       await DataStore.save(updateUser);
+      setNewImageUriDevice(null);
     } else {
       const authUser = await Auth.currentAuthenticatedUser();
       const newUser = new User({
@@ -121,13 +146,20 @@ const UserScreenProfile = () => {
     Auth.signOut();
   };
 
+  const renderPic = () => {
+    if (imageUriDevice) {
+      return <Image source={{uri: imageUriDevice}} style={styles.image} />;
+    }
+    if (user?.image?.startsWith('http')) {
+      return <Image source={{uri: user?.image}} style={styles.image} />;
+    }
+    return <S3Image key={user?.image} style={styles.image} />;
+  };
+
   return (
     <SafeAreaView style={styles.root}>
       <ScrollView style={styles.container}>
-        <Image
-          source={{uri: imageUriDevice ? imageUriDevice : user?.image}}
-          style={{width: 100, height: 100, borderRadius: 50}}
-        />
+        {renderPic()}
         <Pressable onPress={selectImage}>
           <Text>Select image</Text>
         </Pressable>
@@ -226,6 +258,11 @@ const styles = StyleSheet.create({
     margin: 10,
     borderBottomColor: 'grey',
     borderBottomWidth: 1,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
 });
 

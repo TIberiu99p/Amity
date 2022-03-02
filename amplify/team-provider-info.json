@@ -13,7 +13,8 @@
     },
     "categories": {
       "auth": {
-        "Amity": {}
+        "Amity": {},
+        "true": {}
       }
     }
   }
