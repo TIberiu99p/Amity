@@ -1,11 +1,17 @@
 import 'react-native-gesture-handler';
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, Pressable, SafeAreaView} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Pressable,
+  SafeAreaView,
+  ActivityIndicator,
+} from 'react-native';
 
 import FontAwesome5Brands from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import Amplify, {Hub} from 'aws-amplify';
+import Amplify, {DataStore, Hub} from 'aws-amplify';
 import {withAuthenticator} from 'aws-amplify-react-native';
 import config from './src/aws-exports';
 
@@ -22,7 +28,7 @@ Amplify.configure({
 
 const App = () => {
   const [selectedSection, setSection] = useState('HOME');
-  const [loading, setLoading] = useState(true);
+  const [loadingUser, setLoading] = useState(true);
 
   const unselectedColour = '#9c99a1';
   const selectedColour = '#3d0696';
@@ -36,8 +42,24 @@ const App = () => {
         setLoading(false);
       }
     });
+
     return () => listener();
   }, []);
+
+  const loadAssetPage = () => {
+    if (selectedSection === 'HOME') {
+      return <HomeSection loadingUser={loadingUser} />;
+    }
+    if (loadingUser) {
+      return <ActivityIndicator style={{flex: 1}} />;
+    }
+    if (selectedSection === 'CHAT') {
+      return <MatchesSection />;
+    }
+    if (selectedSection === 'USER_PROFILE') {
+      return <UserScreenProfile />;
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeRoot}>
@@ -81,9 +103,8 @@ const App = () => {
             />
           </Pressable>
         </View>
-        {selectedSection === 'HOME' && <HomeSection />}
-        {selectedSection === 'CHAT' && <MatchesSection />}
-        {selectedSection === 'USER_PROFILE' && <UserScreenProfile />}
+
+        {loadAssetPage()}
       </View>
     </SafeAreaView>
   );

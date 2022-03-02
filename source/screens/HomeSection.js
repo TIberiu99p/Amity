@@ -3,7 +3,6 @@ import {View, StyleSheet} from 'react-native';
 import {DataStore, Auth} from 'aws-amplify';
 import {User, Match} from '../../src/models';
 import Card from '../components/AmityCard/index';
-import users from '../../TinderAssets/assets/data/users';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Foundation from 'react-native-vector-icons/Foundation';
@@ -12,33 +11,38 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import StackOfCards from '../components/AnimatedStack/index';
 
-const HomeSection = () => {
+const HomeSection = ({loadingUser}) => {
   const [users, setUsers] = useState([]);
   const [presentUser, setPresentUser] = useState(null);
   const [userAuthenticated, setUserAuthenticated] = useState(null);
 
   useEffect(() => {
+    if (loadingUser) {
+      return;
+    }
     const getCurrUser = async () => {
       const user = await Auth.currentAuthenticatedUser();
-      const dbUsers = await DataStore.query(
-        User,
-        dbU => dbU.sub === user.attributes.sub,
+      const dbUsers = await DataStore.query(User, dbU =>
+        dbU.sub('eq', user.attributes.sub),
       );
 
-      if (dbUsers.length < 0) {
+      if (!dbUsers || dbUsers.length === 0) {
         return;
       }
       setUserAuthenticated(dbUsers[0]);
     };
     getCurrUser();
-  }, []);
+  }, [loadingUser]);
 
   useEffect(() => {
+    if (loadingUser) {
+      return;
+    }
     const fetchUsers = async () => {
       setUsers(await DataStore.query(User));
     };
     fetchUsers();
-  }, []);
+  }, [loadingUser]);
 
   const onSwipeLeft = () => {
     if (!presentUser || !userAuthenticated) {

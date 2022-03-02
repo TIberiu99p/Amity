@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import {View, StyleSheet, Text, SafeAreaView, Image} from 'react-native';
-import users from '../../TinderAssets/assets/data/users';
 import {DataStore, Auth} from 'aws-amplify';
 import {Match, User} from '../../src/models';
 
@@ -10,12 +9,11 @@ const MatchesSection = () => {
 
   const getCurrUser = async () => {
     const user = await Auth.currentAuthenticatedUser();
-    const dbUsers = await DataStore.query(
-      User,
-      dbU => dbU.sub === user.attributes.sub,
+    const dbUsers = await DataStore.query(User, dbU =>
+      dbU.sub('eq', user.attributes.sub),
     );
 
-    if (dbUsers.length < 0) {
+    if (!dbUsers || dbUsers.length === 0) {
       return;
     }
     setUserAuthenticated(dbUsers[0]);
@@ -30,6 +28,7 @@ const MatchesSection = () => {
     const getMatches = async () => {
       const matchResult = await DataStore.query(Match, mch =>
         mch
+          .isMatched('eq', true)
           .or(m1 => m1.User1ID('eq', userAuthenticated.id))
           .User2ID('eq', userAuthenticated.id),
       );
@@ -39,6 +38,25 @@ const MatchesSection = () => {
     getMatches();
   }, [userAuthenticated]);
 
+  useEffect(() => {
+    const subscription = DataStore.observe(Match).subscribe(msg => {
+      console.log(msg.model, msg.opType, msg.element);
+
+      if (msg.opType === 'UPDATE') {
+        const newMatch = msg.element;
+        if (
+          newMatch.isMatched &&
+          (newMatch.User1ID === userAuthenticated.id ||
+            newMatch.User2ID === userAuthenticated.id)
+        ) {
+          console.log('A gamer is waiting for your words gamer!');
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [userAuthenticated]);
+
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
@@ -46,11 +64,24 @@ const MatchesSection = () => {
           Matches
         </Text>
         <View style={styles.users}>
-          {matches.map(match => (
-            <View style={styles.user} key={match.User1.id}>
-              <Image source={{uri: match.User1.image}} style={styles.image} />
-            </View>
-          ))}
+          {matches.map(match => {
+            const indexUser =
+              match.User1.id === userAuthenticated ? match.User2 : match.User1;
+            if (!match.User1 || !match.User2) {
+              return (
+                <View style={styles.user} key={indexUser.id}>
+                  <Image source={{uri: indexUser.image}} style={styles.image} />
+                  <Text style={styles.name}>{indexUser.name}</Text>
+                </View>
+              );
+            }
+            return (
+              <View style={styles.user} key={indexUser.id}>
+                <Image source={{uri: indexUser.image}} style={styles.image} />
+                <Text style={styles.name}>{indexUser.name}</Text>
+              </View>
+            );
+          })}
         </View>
       </View>
     </SafeAreaView>
@@ -84,6 +115,11 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 50,
+  },
+  name: {
+    textAlign: 'center',
+    margin: 10,
+    fontWeight: 'bold',
   },
 });
 
